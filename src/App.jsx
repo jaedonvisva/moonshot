@@ -24,7 +24,7 @@ const ASSETS = [
   { symbol: 'SOL', name: 'Solana', vol: 0.45, color: 'text-purple-400' },
 ];
 
-const MULTIPLIERS = [10, 25, 50, 100, 150, 200, 250];
+const MULTIPLIERS = [1500, 2000, 2500, 5000, 10000];
 const STAKES = [5, 10, 25, 50, 100];
 const DURATIONS = [5, 10, 15, 20, 25, 30, 35, 40, 45]; // Duration in seconds
 
@@ -111,43 +111,67 @@ const Reel = ({ label, value, isSpinning, items = [], colorClass, delay }) => {
   }, [items]);
 
   return (
-    <div className="flex-1 bg-zinc-950 border border-zinc-900 rounded-sm h-32 flex flex-col items-center justify-center relative overflow-hidden group">
-      <div className="absolute top-2 left-2 text-[10px] text-zinc-600 font-mono uppercase tracking-widest leading-none">
-        {label}
+    <div className="flex-1 relative h-32 overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%)',
+      boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.8), inset 0 -2px 8px rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.5)',
+      border: '1px solid #2a2a2a',
+      borderRadius: '6px'
+    }}>
+      {/* Metal frame effect */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 10%, transparent 90%, rgba(0,0,0,0.3) 100%)',
+        borderRadius: '6px'
+      }} />
+      
+      {/* Inner bezel */}
+      <div className="absolute top-3 left-3 right-3 bottom-3 flex flex-col items-center justify-center" style={{
+        background: '#000',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.9)',
+        border: '1px solid #333',
+        borderRadius: '3px'
+      }}>
+        <div className="absolute top-1 left-2 text-[9px] text-zinc-500/70 font-mono uppercase tracking-[0.15em] leading-none">
+          {label}
+        </div>
+        
+        <AnimatePresence mode="wait">
+          {isSpinning ? (
+            <div className="absolute inset-0 flex flex-col items-center">
+               <motion.div
+                 animate={{ y: ["0%", "-50%"] }}
+                 transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                 className="flex flex-col items-center"
+               >
+                 {spinItems.map((item, i) => (
+                   <div
+                     key={i}
+                     className={`h-32 flex items-center justify-center text-2xl font-black font-mono tracking-tighter opacity-50 blur-[1px] ${item.color || 'text-zinc-600'}`}
+                     style={{ textShadow: '0 0 10px currentColor' }}
+                   >
+                     {item.value}
+                   </div>
+                 ))}
+               </motion.div>
+            </div>
+          ) : (
+            <motion.div
+              key="result"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", damping: 12, stiffness: 200, delay }}
+              className={`text-2xl font-black font-mono tracking-tighter ${colorClass}`}
+              style={{ textShadow: '0 0 20px currentColor, 0 0 40px currentColor' }}
+            >
+              {value || '---'}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
-      <AnimatePresence mode="wait">
-        {isSpinning ? (
-          <div className="absolute inset-0 flex flex-col items-center">
-             <motion.div
-               animate={{ y: ["0%", "-50%"] }}
-               transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-               className="flex flex-col items-center"
-             >
-               {spinItems.map((item, i) => (
-                 <div
-                   key={i}
-                   className={`h-32 flex items-center justify-center text-2xl font-black font-mono tracking-tighter opacity-50 blur-[1px] ${item.color || 'text-zinc-600'}`}
-                 >
-                   {item.value}
-                 </div>
-               ))}
-             </motion.div>
-          </div>
-        ) : (
-          <motion.div
-            key="result"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", damping: 12, stiffness: 200, delay }}
-            className={`text-2xl font-black font-mono tracking-tighter ${colorClass}`}
-          >
-            {value || '---'}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      <div className="absolute inset-0 pointer-events-none bg-linear-to-b from-transparent via-white/5 to-transparent opacity-20" />
+      {/* Chrome highlights */}
+      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)'
+      }} />
     </div>
   );
 };
@@ -340,12 +364,25 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-mono selection:bg-emerald-500/30">
       
-      <nav className="h-16 border-b border-zinc-900 px-6 flex items-center justify-between">
+      <nav className="h-16 px-6 flex items-center justify-between" style={{
+        background: 'linear-gradient(to bottom, #1a1a1a 0%, #0a0a0a 100%)',
+        borderBottom: '2px solid #2a2a2a',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+      }}>
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 flex items-center justify-center rounded-sm transition-colors duration-500 ${isConnected ? 'bg-emerald-500' : 'bg-zinc-800'}`}>
-            <Zap className={`w-5 h-5 ${isConnected ? 'text-black fill-current' : 'text-zinc-500'}`} />
+          <div className={`w-8 h-8 flex items-center justify-center rounded transition-all duration-500`}
+            style={isConnected ? {
+              background: 'radial-gradient(circle, #10b981 0%, #059669 100%)',
+              boxShadow: '0 0 20px rgba(16,185,129,0.6), inset 0 1px 0 rgba(255,255,255,0.3)'
+            } : {
+              background: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)'
+            }}>
+            <Zap className={`w-5 h-5 ${isConnected ? 'text-white drop-shadow-lg' : 'text-zinc-500'}`} />
           </div>
-          <span className="font-black tracking-tighter text-xl">TERMINAL.SPIN</span>
+          <span className="font-black tracking-tighter text-xl" style={{
+            textShadow: '0 2px 8px rgba(255,255,255,0.1)'
+          }}>MOONSHOT</span>
         </div>
         
         <div className="flex items-center gap-8">
@@ -543,13 +580,29 @@ export default function App() {
                         <div className="flex flex-col gap-3">
                           <button 
                             onClick={startSpin}
-                            className="w-full px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest rounded-sm transition-colors"
+                            className="w-full px-6 py-4 font-black uppercase tracking-wider transition-all active:scale-95"
+                            style={{
+                              background: 'linear-gradient(135deg, #52525b 0%, #3f3f46 50%, #27272a 100%)',
+                              boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(161,161,170,0.3), 0 0 20px rgba(161,161,170,0.2)',
+                              border: '1px solid #71717a',
+                              borderBottom: '1px solid #18181b',
+                              borderRadius: '6px',
+                              color: '#fff',
+                              textShadow: '0 1px 2px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.3)'
+                            }}
                           >
                             Play Again
                           </button>
                           <button 
                             onClick={() => setShowResultModal(false)}
-                            className="w-full px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold uppercase tracking-widest rounded-sm transition-colors"
+                            className="w-full px-6 py-3 font-bold uppercase tracking-wider transition-all active:scale-95"
+                            style={{
+                              background: 'linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)',
+                              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)',
+                              border: '1px solid #3f3f46',
+                              borderRadius: '6px',
+                              color: '#a1a1aa'
+                            }}
                           >
                             View Graph
                           </button>
@@ -565,33 +618,120 @@ export default function App() {
 
         <div className="mt-8 w-full space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap items-center">
               {STAKES.map(amt => (
                 <button
                   key={amt}
-                  disabled={isSpinning || !!activeTrade || countdown !== null}
+                  disabled={isSpinning || (!!activeTrade && !showResultModal) || countdown !== null}
                   onClick={() => setStake(amt)}
-                  className={`px-4 py-2 text-sm font-mono border transition-all ${
-                    stake === amt 
-                      ? 'bg-white text-black border-white' 
-                      : 'border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-white'
-                  } disabled:opacity-20`}
+                  className={`px-4 py-2 text-sm font-mono font-bold transition-all relative overflow-hidden disabled:opacity-20 ${
+                    stake === amt ? 'text-white' : 'text-zinc-400'
+                  }`}
+                  style={stake === amt ? {
+                    background: 'linear-gradient(135deg, #3f3f46 0%, #27272a 50%, #18181b 100%)',
+                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8), inset 0 -2px 4px rgba(255,255,255,0.2), 0 2px 8px rgba(161,161,170,0.4), 0 0 20px rgba(161,161,170,0.2)',
+                    border: '1px solid #52525b',
+                    borderTop: '1px solid #71717a',
+                    borderRadius: '4px',
+                    textShadow: '0 0 10px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.8)'
+                  } : {
+                    background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #000 100%)',
+                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.5)',
+                    border: '1px solid #27272a',
+                    borderTop: '1px solid #3f3f46',
+                    borderRadius: '4px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!e.currentTarget.disabled && stake !== amt) {
+                      e.currentTarget.style.borderColor = '#3f3f46';
+                      e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.1), 0 1px 3px rgba(0,0,0,0.5)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (stake !== amt) {
+                      e.currentTarget.style.borderColor = '#27272a';
+                      e.currentTarget.style.borderTopColor = '#3f3f46';
+                      e.currentTarget.style.boxShadow = 'inset 0 1px 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.5)';
+                    }
+                  }}
                 >
                   ${amt}
                 </button>
               ))}
+              <div className="flex items-center px-4 py-2 text-sm font-mono font-bold rounded-sm" style={{
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #000 100%)',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.05), 0 1px 3px rgba(0,0,0,0.5)',
+                border: '1px solid #27272a',
+                borderTop: '1px solid #3f3f46',
+              }}>
+                <span className="text-zinc-500 mr-1">$</span>
+                <input
+                  type="number"
+                  value={!STAKES.includes(stake) ? stake : ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '') {
+                      setStake(STAKES[0]);
+                    } else {
+                      const numValue = Math.max(1, Math.min(balance, parseInt(value) || 0));
+                      setStake(numValue);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === '') {
+                      setStake(STAKES[0]);
+                    }
+                  }}
+                  disabled={isSpinning || (!!activeTrade && !showResultModal) || countdown !== null}
+                  placeholder="Custom"
+                  className="w-20 bg-transparent text-white font-mono font-bold focus:outline-none disabled:opacity-20 placeholder-zinc-600"
+                  style={{
+                    textShadow: '0 0 10px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.8)'
+                  }}
+                />
+              </div>
             </div>
 
             <button 
               onClick={startSpin}
               disabled={isSpinning || (activeTrade && activeTrade.status === 'OPEN') || countdown !== null || balance < stake}
-              className={`group relative px-12 py-5 bg-zinc-900 border-2 border-zinc-800 rounded-sm overflow-hidden transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none hover:border-emerald-500/50`}
+              className="group relative px-12 py-6 overflow-hidden transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at top, #52525b 0%, #27272a 50%, #18181b 100%)',
+                boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.6), 0 4px 20px rgba(161,161,170,0.2), 0 8px 30px rgba(0,0,0,0.8)',
+                border: '2px solid #09090b',
+                borderTop: '2px solid #3f3f46',
+                borderRadius: '8px',
+                transform: 'perspective(500px)',
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -4px 8px rgba(0,0,0,0.6), 0 4px 25px rgba(161,161,170,0.4), 0 8px 40px rgba(161,161,170,0.2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -4px 8px rgba(0,0,0,0.6), 0 4px 20px rgba(161,161,170,0.2), 0 8px 30px rgba(0,0,0,0.8)';
+              }}
             >
+              {/* Chrome bevels */}
+              <div className="absolute inset-0 pointer-events-none" style={{
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(0,0,0,0.4) 100%)',
+                borderRadius: '6px'
+              }} />
+              
               <div className="relative z-10 flex items-center gap-3">
-                <RotateCw className={`w-5 h-5 ${isSpinning ? 'animate-spin' : ''}`} />
-                <span className="font-black text-xl uppercase tracking-tighter">Initialize Sequence</span>
+                <RotateCw className={`w-6 h-6 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] ${isSpinning ? 'animate-spin' : ''}`} />
+                <span className="font-black text-2xl uppercase tracking-tight text-white" style={{
+                  textShadow: '0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.2)'
+                }}>PULL</span>
               </div>
-              <div className="absolute inset-0 bg-linear-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-full group-hover:translate-x-full duration-1000 ease-in-out" />
+              
+              {/* Shine effect on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                transform: 'translateX(-100%) skewX(-15deg)',
+                animation: 'shine 2s infinite'
+              }} />
             </button>
           </div>
         </div>
@@ -676,6 +816,10 @@ export default function App() {
         .animate-scroll-text {
           animation: scroll-text 30s linear infinite;
         }
+        @keyframes shine {
+          0% { transform: translateX(-100%) skewX(-15deg); }
+          100% { transform: translateX(200%) skewX(-15deg); }
+        }
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }
@@ -683,8 +827,17 @@ export default function App() {
           background: #000;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #27272a;
+          background: linear-gradient(to bottom, #3f3f46, #27272a);
           border-radius: 10px;
+          box-shadow: inset 0 0 3px rgba(255,255,255,0.1);
+        }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
         }
       `}} />
     </div>
